@@ -5,7 +5,6 @@
     using System;
     using System.Threading.Tasks;
     using Serializers;
-    using Extensions;
 
     public class RestClient : IRestClient
     {

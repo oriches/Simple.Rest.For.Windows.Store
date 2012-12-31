@@ -40,7 +40,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions\HttpWebRequestExtensions.cs" />
     <Compile Include="IRestResponse.cs" />
     <Compile Include="IRestResponse.Generic.cs" />
     <Compile Include="RestResponse.cs" />
