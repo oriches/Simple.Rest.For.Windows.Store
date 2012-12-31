@@ -7,6 +7,7 @@ Currently we support the following .Net versions:
 
 Supported versions:
 
+        .NET framework 4.5,
 	.NET for Windows Store Apps
 	
 Ths is a clone of the Simple.Rest repository, it is targetted at .Net 4.5 & Windows Store - Simple.Rest does not support Windows Store as Microsoft.Bcl.Async (≥ 1.0.12-beta) is not supported for Windows Store applications - miss-match in task threading libraries.
