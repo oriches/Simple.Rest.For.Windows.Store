@@ -248,12 +248,12 @@
             Assert.That(requestCookie, Is.EqualTo(responseCookie));
         }
         
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
-            _baseUrl = string.Format("http://{0}:8080", Environment.MachineName);
-            _invalidPortUrl = string.Format("http://{0}:8079", Environment.MachineName);
-            _invalidHostUrl = string.Format("http://{0}1:8079", Environment.MachineName);
+            _baseUrl = $"http://{Environment.MachineName}:8080";
+            _invalidPortUrl = $"http://{Environment.MachineName}:8079";
+            _invalidHostUrl = $"http://{Environment.MachineName}1:8079";
 
             _testScheduler = new TestScheduler();
 
@@ -263,7 +263,7 @@
             _xmlRestClient = new RestClient(new XmlSerializer());
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void TearDown()
         {
             _testService.Dispose();

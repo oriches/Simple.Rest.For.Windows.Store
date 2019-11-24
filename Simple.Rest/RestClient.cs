@@ -97,7 +97,7 @@
         protected virtual HttpWebRequest CreateRequest(Uri url, HttpMethod method)
         {
             var request = (HttpWebRequest)WebRequest.Create(url);
-            request.Method = method.ToString();
+            request.Method = method.ToString().ToUpper();
             request.Accept = ResponseSerializer.ContentType;
 
             if (Cookies != null && Cookies.Count != 0)

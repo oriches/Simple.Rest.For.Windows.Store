@@ -63,10 +63,10 @@
             Assert.That(updatedEmployee.LastName, Is.EqualTo(employee.LastName));
         }
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
-            _baseUrl = string.Format("http://{0}:8081", Environment.MachineName);
+            _baseUrl = $"http://{Environment.MachineName}:8081";
 
             _testService = new TestService(_baseUrl);
 
@@ -74,7 +74,7 @@
             _xmlRestClient = new RestClient(new XmlSerializer());
         }
 
-        [TestFixtureTearDown]
+        [OneTimeTearDown]
         public void TearDown()
         {
             _testService.Dispose();
