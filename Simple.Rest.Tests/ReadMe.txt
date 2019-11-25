@@ -1,0 +1,3 @@
+﻿Running these tests required elevated privilege for the account...
+
+https://stackoverflow.com/questions/8727293/http-could-not-register-url-http-8000-hellowcf-your-process-does-not-have
