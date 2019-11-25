@@ -123,7 +123,7 @@ namespace Simple.Rest
                 }
                 finally
                 {
-                    if (response != null) response.Dispose();
+                    response?.Dispose();
                 }
             }
             catch (Exception exn)
@@ -152,7 +152,7 @@ namespace Simple.Rest
                 }
                 finally
                 {
-                    if (response != null) response.Dispose();
+                    response?.Dispose();
                 }
             }
             catch (Exception exn)
@@ -192,7 +192,7 @@ namespace Simple.Rest
                 }
                 finally
                 {
-                    if (response != null) response.Dispose();
+                    response?.Dispose();
                 }
             }
             catch (Exception exn)
@@ -229,7 +229,7 @@ namespace Simple.Rest
                 }
                 finally
                 {
-                    if (response != null) response.Dispose();
+                    response?.Dispose();
                 }
             }
             catch (Exception exn)
