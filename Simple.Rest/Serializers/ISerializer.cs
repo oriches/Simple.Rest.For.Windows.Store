@@ -1,7 +1,7 @@
+using System.IO;
+
 namespace Simple.Rest.Serializers
 {
-    using System.IO;
-
     public interface ISerializer
     {
         string ContentType { get; }

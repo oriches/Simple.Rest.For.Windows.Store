@@ -1,9 +1,15 @@
-﻿namespace Simple.Rest.Tests.Dto
-{
-    using System;
+﻿using System;
 
+namespace Simple.Rest.Tests.Dto
+{
     public class Employee : IEquatable<Employee>
     {
+        public int? Id { get; set; }
+
+        public string FirstName { get; set; }
+
+        public string LastName { get; set; }
+
         public bool Equals(Employee other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -15,7 +21,7 @@
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((Employee) obj);
         }
 
@@ -33,11 +39,5 @@
         {
             return !Equals(left, right);
         }
-
-        public int? Id { get; set; }
-
-        public string FirstName { get; set; }
-
-        public string LastName { get; set; }
     }
 }

@@ -1,10 +1,10 @@
+using System;
+using System.Net;
+using System.Threading.Tasks;
+using Simple.Rest.Serializers;
+
 namespace Simple.Rest
 {
-    using System;
-    using System.Net;
-    using System.Threading.Tasks;
-    using Serializers;
-
     public interface IRestClient
     {
         ISerializer RequestSerializer { get; set; }

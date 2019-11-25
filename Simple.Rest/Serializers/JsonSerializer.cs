@@ -1,14 +1,12 @@
+using System.IO;
+using System.Text;
+using Newtonsoft.Json;
+
 namespace Simple.Rest.Serializers
 {
-    using System.IO;
-    using System.Text;
-    using Newtonsoft.Json;
-
     public sealed class JsonSerializer : ISerializer
     {
         private readonly Newtonsoft.Json.JsonSerializer _serializer;
-
-        public string ContentType { get; private set; }
 
         public JsonSerializer()
         {
@@ -17,11 +15,13 @@ namespace Simple.Rest.Serializers
             ContentType = "application/json";
         }
 
-        public Stream Serialize<T>(T instance) where  T : class
+        public string ContentType { get; }
+
+        public Stream Serialize<T>(T instance) where T : class
         {
             var writer = new StreamWriter(new MemoryStream(), Encoding.UTF8);
             _serializer.Serialize(writer, instance);
-            
+
             writer.Flush();
             writer.BaseStream.Seek(0, SeekOrigin.Begin);
 

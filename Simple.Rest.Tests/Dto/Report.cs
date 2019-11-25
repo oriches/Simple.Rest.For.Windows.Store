@@ -1,9 +1,13 @@
+using System;
+
 namespace Simple.Rest.Tests.Dto
 {
-    using System;
-
     public class Report : IEquatable<Report>
     {
+        public int Id { get; set; }
+
+        public string Name { get; set; }
+
         public bool Equals(Report other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -15,7 +19,7 @@ namespace Simple.Rest.Tests.Dto
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((Report) obj);
         }
 
@@ -33,9 +37,5 @@ namespace Simple.Rest.Tests.Dto
         {
             return !Equals(left, right);
         }
-
-        public int Id { get; set; }
-
-        public string Name { get; set; }
     }
 }

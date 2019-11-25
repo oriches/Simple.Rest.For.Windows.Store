@@ -1,21 +1,13 @@
-﻿namespace Simple.Rest
-{
-    using System.IO;
-    using System.Net;
-    using System;
-    using System.Threading.Tasks;
-    using Serializers;
+﻿using System;
+using System.IO;
+using System.Net;
+using System.Threading.Tasks;
+using Simple.Rest.Serializers;
 
+namespace Simple.Rest
+{
     public class RestClient : IRestClient
     {
-        protected enum HttpMethod
-        {
-            Get,
-            Post,
-            Put,
-            Delete
-        }
-
         public RestClient(ISerializer serializer)
             : this(serializer, serializer)
         {
@@ -84,7 +76,8 @@
             return task;
         }
 
-        protected virtual Task<IRestResponse<TResponse>> ExecuteRequest<TRequest, TResponse>(Uri url, HttpMethod method, TRequest resource)
+        protected virtual Task<IRestResponse<TResponse>> ExecuteRequest<TRequest, TResponse>(Uri url, HttpMethod method,
+            TRequest resource)
             where TRequest : class
             where TResponse : class
         {
@@ -96,7 +89,7 @@
 
         protected virtual HttpWebRequest CreateRequest(Uri url, HttpMethod method)
         {
-            var request = (HttpWebRequest)WebRequest.Create(url);
+            var request = (HttpWebRequest) WebRequest.Create(url);
             request.Method = method.ToString().ToUpper();
             request.Accept = ResponseSerializer.ContentType;
 
@@ -106,15 +99,9 @@
                 request.CookieContainer.Add(url, Cookies);
             }
 
-            if (Headers != null && Headers.Count != 0)
-            {
-                request.Headers = Headers;
-            }
+            if (Headers != null && Headers.Count != 0) request.Headers = Headers;
 
-            if (Credentials != null)
-            {
-                request.Credentials = Credentials;
-            }
+            if (Credentials != null) request.Credentials = Credentials;
 
             return request;
         }
@@ -127,7 +114,7 @@
                 HttpWebResponse response = null;
                 try
                 {
-                    response = (HttpWebResponse) (await request.GetResponseAsync());
+                    response = (HttpWebResponse) await request.GetResponseAsync();
                     tcs.SetResult(ProcessResponse<T>(response));
                 }
                 catch (Exception exn)
@@ -136,10 +123,7 @@
                 }
                 finally
                 {
-                    if (response != null)
-                    {
-                        response.Dispose();
-                    }
+                    if (response != null) response.Dispose();
                 }
             }
             catch (Exception exn)
@@ -159,7 +143,7 @@
                 HttpWebResponse response = null;
                 try
                 {
-                    response = (HttpWebResponse) (await request.GetResponseAsync());
+                    response = (HttpWebResponse) await request.GetResponseAsync();
                     tcs.SetResult(new RestResponse(response));
                 }
                 catch (Exception exn)
@@ -168,10 +152,7 @@
                 }
                 finally
                 {
-                    if (response != null)
-                    {
-                        response.Dispose();
-                    }
+                    if (response != null) response.Dispose();
                 }
             }
             catch (Exception exn)
@@ -182,7 +163,8 @@
             return await tcs.Task;
         }
 
-        private async Task<IRestResponse<TResponse>> WithBodyRequest<TRequest, TResponse>(HttpWebRequest request, TRequest resource)
+        private async Task<IRestResponse<TResponse>> WithBodyRequest<TRequest, TResponse>(HttpWebRequest request,
+            TRequest resource)
             where TRequest : class
             where TResponse : class
         {
@@ -201,7 +183,7 @@
                 HttpWebResponse response = null;
                 try
                 {
-                    response = (HttpWebResponse) (await request.GetResponseAsync());
+                    response = (HttpWebResponse) await request.GetResponseAsync();
                     tcs.SetResult(ProcessResponse<TResponse>(response));
                 }
                 catch (Exception exn)
@@ -210,10 +192,7 @@
                 }
                 finally
                 {
-                    if (response != null)
-                    {
-                        response.Dispose();
-                    }
+                    if (response != null) response.Dispose();
                 }
             }
             catch (Exception exn)
@@ -241,7 +220,7 @@
                 HttpWebResponse response = null;
                 try
                 {
-                    response = (HttpWebResponse) (await request.GetResponseAsync());
+                    response = (HttpWebResponse) await request.GetResponseAsync();
                     tcs.SetResult(new RestResponse(response));
                 }
                 catch (Exception exn)
@@ -250,10 +229,7 @@
                 }
                 finally
                 {
-                    if (response != null)
-                    {
-                        response.Dispose();
-                    }
+                    if (response != null) response.Dispose();
                 }
             }
             catch (Exception exn)
@@ -298,6 +274,14 @@
             var result = ResponseSerializer.Deserialize<T>(stream);
 
             return result;
+        }
+
+        protected enum HttpMethod
+        {
+            Get,
+            Post,
+            Put,
+            Delete
         }
     }
 }

@@ -1,22 +1,10 @@
+using System;
+using System.Net;
+
 namespace Simple.Rest
 {
-    using System;
-    using System.Net;
-
     public class RestResponse : IRestResponse
     {
-        public HttpStatusCode StatusCode { get; private set; }
-
-        public string StatusDescription { get; private set; }
-
-        public Exception Exception { get; private set; }
-
-        public CookieCollection Cookies { get; private set; }
-
-        public WebHeaderCollection Headers { get; private set; }
-
-        public bool Successfully { get { return StatusCode == HttpStatusCode.OK && Exception == null; } }
-
         public RestResponse(HttpWebResponse response) : this(response, null)
         {
         }
@@ -30,5 +18,17 @@ namespace Simple.Rest
 
             Exception = exception;
         }
+
+        public HttpStatusCode StatusCode { get; }
+
+        public string StatusDescription { get; }
+
+        public Exception Exception { get; }
+
+        public CookieCollection Cookies { get; }
+
+        public WebHeaderCollection Headers { get; }
+
+        public bool Successfully => StatusCode == HttpStatusCode.OK && Exception == null;
     }
 }

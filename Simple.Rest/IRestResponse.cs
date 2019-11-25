@@ -1,8 +1,8 @@
+using System;
+using System.Net;
+
 namespace Simple.Rest
 {
-    using System;
-    using System.Net;
-
     public interface IRestResponse
     {
         HttpStatusCode StatusCode { get; }

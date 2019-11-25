@@ -1,18 +1,17 @@
-﻿namespace Simple.Rest.Tests
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Net;
-    using System.Reactive.Linq;
-    using System.Reactive.Threading.Tasks;
-    using System.Threading;
-    using Dto;
-    using Microsoft.Reactive.Testing;
-    using NUnit.Framework;
-    using Rest;
-    using Serializers;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
+using System.Threading;
+using Microsoft.Reactive.Testing;
+using NUnit.Framework;
+using Simple.Rest.Serializers;
+using Simple.Rest.Tests.Dto;
 
+namespace Simple.Rest.Tests
+{
     [TestFixture]
     public class RestClientGetTests
     {
@@ -25,77 +24,48 @@
 
         private TestService _testService;
         private TestScheduler _testScheduler;
-        
-        [Test]
-        public void should_return_single_json_object()
+
+        public void should_fail_when_url_is_invalid_controller()
         {
             // ARRANGE
-            var employees = _testService.Employees;
-            var url = new Uri(_baseUrl + "/api/employees/1");
+            var url = new Uri(_baseUrl + "/api/documents/1");
+            var sync = new ManualResetEvent(false);
 
             // ACT
-            var task = _jsonRestClient.GetAsync<Employee>(url);
-            task.Wait();
-            
-            var employee = task.Result.Resource;
-            
-            // ASSERT
-            Assert.That(employee, Is.Not.Null);
-            Assert.That(employee.Id, Is.EqualTo(employees.First().Id));
-            Assert.That(employee.FirstName, Is.EqualTo(employees.First().FirstName));
-            Assert.That(employee.LastName, Is.EqualTo(employees.First().LastName));
-        }
-
-        [Test]
-        public void should_return_list_of_json_objects()
-        {
-            // ARRANGE
-            var url = new Uri(_baseUrl + "/api/employees");
-
-            // ACT
-            var task = _jsonRestClient.GetAsync<IEnumerable<Employee>>(url);
-            task.Wait();
-            
-            var employees = task.Result.Resource;
-
-            // ASSIGN
-            CollectionAssert.AreEquivalent(_testService.Employees, employees);
-        }
-
-        [Test]
-        public void should_return_single_xml_object()
-        {
-            // ARRANGE
-            var employees = _testService.Employees;
-            var url = new Uri(_baseUrl + "/api/employees/1");
-
-            // ACT
-            var task = _xmlRestClient.GetAsync<Employee>(url);
-            task.Wait();
-
-            var employee = task.Result.Resource;
+            Exception exn = null;
+            _jsonRestClient.GetAsync<Employee>(url)
+                .ToObservable()
+                .Take(1)
+                .Subscribe(_ => { }, e =>
+                {
+                    exn = e;
+                    sync.Set();
+                });
 
             // ASSERT
-            Assert.That(employee, Is.Not.Null);
-            Assert.That(employee.Id, Is.EqualTo(employees.First().Id));
-            Assert.That(employee.FirstName, Is.EqualTo(employees.First().FirstName));
-            Assert.That(employee.LastName, Is.EqualTo(employees.First().LastName));
+            sync.WaitOne();
+            Assert.That(exn, Is.Not.Null);
         }
 
-        [Test]
-        public void should_return_list_of_xml_objects()
+        [OneTimeSetUp]
+        public void SetUp()
         {
-            // ARRANGE
-            var url = new Uri(_baseUrl + "/api/employees");
+            _baseUrl = $"http://{Environment.MachineName}:8080";
+            _invalidPortUrl = $"http://{Environment.MachineName}:8079";
+            _invalidHostUrl = $"http://{Environment.MachineName}1:8079";
 
-            // ACT
-            var task = _xmlRestClient.GetAsync<IEnumerable<Employee>>(url);
-            task.Wait();
+            _testScheduler = new TestScheduler();
 
-            var employees = task.Result.Resource;
+            _testService = new TestService(_baseUrl);
 
-            // ASSIGN
-            CollectionAssert.AreEquivalent(_testService.Employees, employees);
+            _jsonRestClient = new RestClient(new JsonSerializer());
+            _xmlRestClient = new RestClient(new XmlSerializer());
+        }
+
+        [OneTimeTearDown]
+        public void TearDown()
+        {
+            _testService.Dispose();
         }
 
         [Test]
@@ -157,28 +127,6 @@
                 .ToObservable()
                 .Take(1)
                 .Subscribe(_ => { }, e =>
-                    {
-                        exn = e;
-                        sync.Set();
-                    });
-
-            // ASSERT
-            sync.WaitOne();
-            Assert.That(exn, Is.Not.Null);
-        }
-
-        public void should_fail_when_url_is_invalid_controller()
-        {
-            // ARRANGE
-            var url = new Uri(_baseUrl + "/api/documents/1");
-            var sync = new ManualResetEvent(false);
-
-            // ACT
-            Exception exn = null;
-            _jsonRestClient.GetAsync<Employee>(url)
-                .ToObservable()
-                .Take(1)
-                .Subscribe(_ => { }, e =>
                 {
                     exn = e;
                     sync.Set();
@@ -211,6 +159,25 @@
         }
 
         [Test]
+        public void should_return_expected_cookie()
+        {
+            // ARRANGE
+            var url = new Uri(_baseUrl + "/api/employees/1");
+
+            var requestCookie = new Cookie("TestCookie", Guid.NewGuid().ToString());
+            _jsonRestClient.Cookies.Add(requestCookie);
+
+            // ACT
+            var task = _jsonRestClient.GetAsync<Employee>(url);
+            task.Wait();
+
+            var responseCookie = _jsonRestClient.Cookies["TestCookie"];
+
+            // ASSERT
+            Assert.That(requestCookie, Is.EqualTo(responseCookie));
+        }
+
+        [Test]
         public void should_return_expected_header()
         {
             // ARRANGE
@@ -230,43 +197,75 @@
         }
 
         [Test]
-        public void should_return_expected_cookie()
+        public void should_return_list_of_json_objects()
         {
             // ARRANGE
-            var url = new Uri(_baseUrl + "/api/employees/1");
+            var url = new Uri(_baseUrl + "/api/employees");
 
-            var requestCookie = new Cookie("TestCookie", Guid.NewGuid().ToString());
-            _jsonRestClient.Cookies.Add(requestCookie);
+            // ACT
+            var task = _jsonRestClient.GetAsync<IEnumerable<Employee>>(url);
+            task.Wait();
+
+            var employees = task.Result.Resource;
+
+            // ASSIGN
+            CollectionAssert.AreEquivalent(_testService.Employees, employees);
+        }
+
+        [Test]
+        public void should_return_list_of_xml_objects()
+        {
+            // ARRANGE
+            var url = new Uri(_baseUrl + "/api/employees");
+
+            // ACT
+            var task = _xmlRestClient.GetAsync<IEnumerable<Employee>>(url);
+            task.Wait();
+
+            var employees = task.Result.Resource;
+
+            // ASSIGN
+            CollectionAssert.AreEquivalent(_testService.Employees, employees);
+        }
+
+        [Test]
+        public void should_return_single_json_object()
+        {
+            // ARRANGE
+            var employees = _testService.Employees;
+            var url = new Uri(_baseUrl + "/api/employees/1");
 
             // ACT
             var task = _jsonRestClient.GetAsync<Employee>(url);
             task.Wait();
 
-            var responseCookie = _jsonRestClient.Cookies["TestCookie"];
+            var employee = task.Result.Resource;
 
             // ASSERT
-            Assert.That(requestCookie, Is.EqualTo(responseCookie));
-        }
-        
-        [OneTimeSetUp]
-        public void SetUp()
-        {
-            _baseUrl = $"http://{Environment.MachineName}:8080";
-            _invalidPortUrl = $"http://{Environment.MachineName}:8079";
-            _invalidHostUrl = $"http://{Environment.MachineName}1:8079";
-
-            _testScheduler = new TestScheduler();
-
-            _testService = new TestService(_baseUrl);
-
-            _jsonRestClient = new RestClient(new JsonSerializer());
-            _xmlRestClient = new RestClient(new XmlSerializer());
+            Assert.That(employee, Is.Not.Null);
+            Assert.That(employee.Id, Is.EqualTo(employees.First().Id));
+            Assert.That(employee.FirstName, Is.EqualTo(employees.First().FirstName));
+            Assert.That(employee.LastName, Is.EqualTo(employees.First().LastName));
         }
 
-        [OneTimeTearDown]
-        public void TearDown()
+        [Test]
+        public void should_return_single_xml_object()
         {
-            _testService.Dispose();
+            // ARRANGE
+            var employees = _testService.Employees;
+            var url = new Uri(_baseUrl + "/api/employees/1");
+
+            // ACT
+            var task = _xmlRestClient.GetAsync<Employee>(url);
+            task.Wait();
+
+            var employee = task.Result.Resource;
+
+            // ASSERT
+            Assert.That(employee, Is.Not.Null);
+            Assert.That(employee.Id, Is.EqualTo(employees.First().Id));
+            Assert.That(employee.FirstName, Is.EqualTo(employees.First().FirstName));
+            Assert.That(employee.LastName, Is.EqualTo(employees.First().LastName));
         }
     }
 }

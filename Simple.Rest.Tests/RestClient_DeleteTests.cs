@@ -1,11 +1,10 @@
-﻿namespace Simple.Rest.Tests
-{
-    using System;
-    using System.Net;
-    using NUnit.Framework;
-    using Rest;
-    using Serializers;
+﻿using System;
+using System.Net;
+using NUnit.Framework;
+using Simple.Rest.Serializers;
 
+namespace Simple.Rest.Tests
+{
     [TestFixture]
     public class RestClientDeleteTests
     {
@@ -14,7 +13,24 @@
 
         private string _baseUrl;
         private TestService _testService;
-        
+
+        [OneTimeSetUp]
+        public void SetUp()
+        {
+            _baseUrl = $"http://{Environment.MachineName}:8083";
+
+            _testService = new TestService(_baseUrl);
+
+            _jsonRestClient = new RestClient(new JsonSerializer());
+            _xmlRestClient = new RestClient(new XmlSerializer());
+        }
+
+        [OneTimeTearDown]
+        public void TearDown()
+        {
+            _testService.Dispose();
+        }
+
         [Test]
         public void should_delete_json_object()
         {
@@ -26,7 +42,7 @@
             task.Wait();
 
             var response = task.Result;
-            
+
             // ASSIGN
             Assert.That(response, Is.Not.Null);
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
@@ -47,23 +63,6 @@
             // ASSIGN
             Assert.That(response, Is.Not.Null);
             Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
-        }
-
-        [OneTimeSetUp]
-        public void SetUp()
-        {
-            _baseUrl = $"http://{Environment.MachineName}:8083";
-
-            _testService = new TestService(_baseUrl);
-
-            _jsonRestClient = new RestClient(new JsonSerializer());
-            _xmlRestClient = new RestClient(new XmlSerializer());
-        }
-
-        [OneTimeTearDown]
-        public void TearDown()
-        {
-            _testService.Dispose();
         }
     }
 }
