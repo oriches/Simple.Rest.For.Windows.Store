@@ -1,5 +1,6 @@
 Simple.Rest.For.Windows.Store
 =============================
+[![Build status](https://ci.appveyor.com/api/projects/status/2hxdme0pjsuavoaj/branch/master?svg=true)](https://ci.appveyor.com/project/oriches/simple-rest-for-windows-store/branch/master)
 
 A .Net Portable Class Library which to simplify the calling of a RESTful web service from a .Net client application.
 
